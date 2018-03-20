@@ -6,26 +6,50 @@ SetTitleMatchMode,3
 DetectHiddenText, On
 wnd:=0
 Title:=""
+
+
+
+
 WinGetTitle,Title,ahk_id %wnd%
 Loop                                
 {                                   
-if(wnd=0){
-	msgbox select the spotify window and click Shift+F1 to use that window as target, the click ok to continue
-}
+	if(wnd==0){
+		identify()
+		if(wnd==0){
+			msgbox select the spotify window and click Shift+F1 to use that window as target, the click ok to continue
+		}
+	}
 	WinWaitClose,%Title%
 	WinGetTitle,dTitle ,ahk_id %wnd%            
-	if (dTitle="")
+	if (dTitle=="")
 	{
+		wnd:=0
 		;tooltip 'vacio ['%dTitle%']'
 	}
 	else
 	{
-	title:=dTitle
+		title:=dTitle
 		check()
 		;tooltip 'ok'
 		}
 }                                   
 return
+identify(){
+
+global wnd
+WinGet,id,list,ahk_class  Chrome_WidgetWin_0
+Loop, %id%
+{
+    this_id := id%A_Index%
+    WinGetClass, this_class, ahk_id %this_id%
+    WinGetTitle, this_title, ahk_id %this_id%
+    if( not this_title == ""){ ;// =="Spotify"
+        WinActivate, ahk_id %this_id%
+	wnd:=this_id
+        ;MsgBox, 4, , %this_id% Visiting All Windows`n%a_index% of %id%`nahk_id %this_id%`nahk_class %this_class%`n%this_title%`n`nContinue?
+    }
+}
+}
 check(){
 	global ban
 	global wnd
