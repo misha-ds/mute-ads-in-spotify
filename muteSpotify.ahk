@@ -1,19 +1,36 @@
 #singleInstance force
+
 ban:=""
 method:=2  ;method 1: check a list from a file   2: check when title doesn't have the format "artist - title"
 SetTitleMatchMode,3                 
-WinGetTitle,Title,AHK_class SpotifyMainWindow
+DetectHiddenText, On
+wnd:=0
+Title:=""
+WinGetTitle,Title,ahk_id %wnd%
 Loop                                
 {                                   
+if(wnd=0){
+	msgbox select the spotify window and click Shift+F1 to use that window as target, the click ok to continue
+}
 	WinWaitClose,%Title%
-	WinGetTitle,Title ,AHK_class SpotifyMainWindow            
-	check()
+	WinGetTitle,dTitle ,ahk_id %wnd%            
+	if (dTitle="")
+	{
+		;tooltip 'vacio ['%dTitle%']'
+	}
+	else
+	{
+	title:=dTitle
+		check()
+		;tooltip 'ok'
+		}
 }                                   
 return
 check(){
 	global ban
-	WinGet, ActivePid, PID, ahk_class SpotifyMainWindow
-	WinGetTitle,Title, AHK_class SpotifyMainWindow            
+	global wnd
+	WinGet, ActivePid, PID, ahk_id %wnd%
+	WinGetTitle,Title, ahk_id %wnd%            
 	unmute:=true
 
 	if(StrLen(ban)>1)
@@ -62,15 +79,40 @@ check(){
 	;msgbox "checked!"
 }
 #include mute.ahk
-#IfWinExist  ahk_class SpotifyMainWindow
+#IfWinExist  ahk_exe Spotify.exe
 ;add current title to banned list
-F1::
-	WinGetTitle,ban,AHK_class SpotifyMainWindow
++F3::
+	WinGetTitle,ban,ahk_id %wnd%
 	check()
 return
 ;recheck current song
-F2::
++F2::
 	check()
 return
+; select the window who we will be monitoring
++F1::
+WinGet, wnd, ID, A
+WinGetTitle, t, ahk_id %wnd%
+msgbox Selected!  title: %t%    id: %wnd%
+return
 #If
+/*
++F3::
+	winget, t1, id, ahk_exe Spotify.exe
+	winget, t2, id, ahk_class Chrome_WidgetWin_0
+	winget, t3, id, A
 
+msgbox %t1% | %t2% | %t3%
+return
+
++F1::
+	
+
+
+WinGetTitle, t1, ahk_id %wnd%
+WinGetTitle, t2, ahk_exe Spotify.exe
+WinGetTitle, t3, ahk_class Chrome_WidgetWin_0
+msgbox %t1% | %t2% | %t3%
+
+return
+*/
