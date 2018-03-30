@@ -7,31 +7,34 @@ DetectHiddenText, On
 wnd:=0
 Title:=""
 
-
-
-
 WinGetTitle,Title,ahk_id %wnd%
 Loop                                
 {                                   
 	if(wnd==0){
 		identify()
 		if(wnd==0){
-			msgbox select the spotify window and click Shift+F1 to use that window as target, the click ok to continue
+			ttip( "select the spotify window and click Shift+F1 to use that window as target, the click ok to continue")
 		}
 	}
 	WinWaitClose,%Title%
-	WinGetTitle,dTitle ,ahk_id %wnd%            
-	if (dTitle=="")
-	{
-		wnd:=0
-		;tooltip 'vacio ['%dTitle%']'
-	}
-	else
-	{
-		title:=dTitle
-		check()
-		;tooltip 'ok'
+	loop,2 {
+		WinGetTitle,dTitle ,ahk_id %wnd%            
+		msg="sp" . %Title%
+		ttip ( msg )
+		if (dTitle=="")
+		{
+			wnd:=0
+			Title:=-
+			;tooltip 'vacio ['%dTitle%']'
 		}
+		else
+		{
+			Title:=dTitle
+			check()
+			;tooltip 'ok'
+		}
+		sleep,1000 ;recheck after 2 second
+	}
 }                                   
 return
 identify(){
@@ -50,13 +53,27 @@ Loop, %id%
     }
 }
 }
+return
+ttip(msg)
+{
+	tooltip, msg
+	SetTimer, ctip, 4000
+	return
+}
+ctip:
+{
+	tooltip,
+	return
+}
+
 check(){
 	global ban
 	global wnd
+	global Title
 	WinGet, ActivePid, PID, ahk_id %wnd%
-	WinGetTitle,Title, ahk_id %wnd%            
+	;WinGetTitle,Title, ahk_id %wnd%            
 	unmute:=true
-
+	
 	if(StrLen(ban)>1)
 		append:=true
 	else
@@ -101,6 +118,7 @@ check(){
 		only_mute(ActivePid)
 	}
 	;msgbox "checked!"
+	return
 }
 #include mute.ahk
 #IfWinExist  ahk_exe Spotify.exe
@@ -140,3 +158,4 @@ msgbox %t1% | %t2% | %t3%
 
 return
 */
+
