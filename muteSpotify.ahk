@@ -33,7 +33,7 @@ Loop
 			check()
 			;tooltip 'ok'
 		}
-		sleep,1000 ;recheck after 2 second
+		sleep,2000 ;recheck after 2 second
 	}
 }                                   
 return
