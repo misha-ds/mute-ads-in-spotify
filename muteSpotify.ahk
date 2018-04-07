@@ -1,7 +1,7 @@
 #singleInstance force
 
-ban:=""
-method:=2  ;method 1: check a list from a file   2: check when title doesn't have the format "artist - title"
+ban:=false
+method:=3  ;method 1: check a list from a file   2: check when title doesn't have the format "artist - title"   3:both
 SetTitleMatchMode,3                 
 DetectHiddenText, On
 wnd:=0
@@ -56,7 +56,7 @@ Loop, %id%
 return
 ttip(msg)
 {
-	tooltip, msg
+	tooltip, %msg%
 	SetTimer, ctip, 4000
 	return
 }
@@ -70,61 +70,60 @@ check(){
 	global ban
 	global wnd
 	global Title
+	global method
 	WinGet, ActivePid, PID, ahk_id %wnd%
 	;WinGetTitle,Title, ahk_id %wnd%            
 	unmute:=true
 	
-	if(StrLen(ban)>1)
-		append:=true
-	else
-		append:=false
-	if(method=1)
-	{
-	Loop Read, block.lst
-	{
-		If InStr(A_LoopReadLine,Title) 
-		{
-			only_mute(ActivePid)
-			unmute:=false
-			;msgbox "block!"
-			if( not append)
-				break
-		}
-		If append && InStr(A_LoopReadLine, ban)
-		{
-			append:=false	
-		}
-	}
-	}
-	else{
+
+	if(unmute)
+	if( method=2 or method=3){
 		if Not InStr(Title," - ")
 		{
-			only_mute(ActivePid)
 			unmute:=false
-			;msgbox "blocked!!! " %Title%
-		}
-		else
-		{
-			;msgbox "continue " %Title%
 		}
 	}
+	
+	if(unmute)
+	if(method=1 or method=3)
+	{
+		Loop Read, block.lst
+		{
+			If InStr(A_LoopReadLine,Title) 
+			{
+				unmute:=false
+				;ya esta guardado este elemento
+				ban:=false
+				break
+			}
+		}
+	}
+
+	if(ban)
+	{
+		FileAppend %Title%`n,block.lst
+		ttip( "Blockear "Title )
+		ban:=false
+		unmute:=false
+	}
+
 	if (unmute){
 		only_unmute(ActivePid)
-		;msgbox "continue! " %Title%
+		ttip("continue! "Title)
 	}
-	if(append){
-		FileAppend %ban%`n,block.lst
-		ban:=
+	else
+	{
+		ttip( "blocked!!! "Title)
 		only_mute(ActivePid)
 	}
-	;msgbox "checked!"
 	return
 }
 #include mute.ahk
 #IfWinExist  ahk_exe Spotify.exe
 ;add current title to banned list
 +F3::
-	WinGetTitle,ban,ahk_id %wnd%
+	
+	ban:=true
 	check()
 return
 ;recheck current song
@@ -132,7 +131,7 @@ return
 	check()
 return
 ; select the window who we will be monitoring
-+F1::
+^+F1::
 WinGet, wnd, ID, A
 WinGetTitle, t, ahk_id %wnd%
 msgbox Selected!  title: %t%    id: %wnd%
