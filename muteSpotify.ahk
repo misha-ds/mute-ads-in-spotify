@@ -20,12 +20,11 @@ Loop
 	loop,2 {
 		WinGetTitle,dTitle ,ahk_id %wnd%            
 		msg="sp" . %Title%
-		ttip ( msg )
+		;ttip ( msg )
 		if (dTitle=="")
 		{
 			wnd:=0
 			Title:=-
-			;tooltip 'vacio ['%dTitle%']'
 		}
 		else
 		{
@@ -81,6 +80,9 @@ check(){
 		if Not InStr(Title," - ")
 		{
 			unmute:=false
+			;fix when the title is not detected, usually happens whe clicking some related artist, the music play without updating the window title
+			send,{Media_Play_Pause}
+			send,{Media_Play_Pause}
 		}
 	}
 	
@@ -102,18 +104,18 @@ check(){
 	if(ban)
 	{
 		FileAppend %Title%`n,block.lst
-		ttip( "Blockear "Title )
+		ttip( "Blockeando "Title )
 		ban:=false
 		unmute:=false
 	}
 
 	if (unmute){
 		only_unmute(ActivePid)
-		ttip("continue! "Title)
+		;ttip("continue! "Title)
 	}
 	else
 	{
-		ttip( "blocked!!! "Title)
+		;ttip( "blocked!!! "Title)
 		only_mute(ActivePid)
 	}
 	return
